@@ -1,0 +1,44 @@
+# Edge Predictive Hardware Failure Monitoring Configuration
+
+mode:
+  # live_mode: true enables real on-device telemetry collection via psutil and smartctl
+  # live_mode: false will be used by Phase 2 for synthetic failure scenario generation
+  live_mode: true
+
+collector:
+  # Sampling interval in seconds (recommended 10-15s for edge telemetry)
+  interval_seconds: 10
+  # Machine identifier (defaults to system hostname if empty or "auto")
+  host_id: "auto"
+  # SMART attributes configuration
+  smartctl:
+    enabled: true
+    # Path to smartctl binary (e.g., "smartctl" or "C:\\Program Files\\smartmontools\\bin\\smartctl.exe")
+    binary_path: "smartctl"
+    # Specific drive target (e.g. "/dev/sda" or "/dev/nvme0n1" on Linux, "/dev/pd0" on Windows, or "auto")
+    device: "auto"
+
+storage:
+  # SQLite database path for low-latency edge storage
+  db_path: "data/telemetry.db"
+  # Automatic Parquet archiving
+  parquet:
+    enabled: false
+    export_dir: "data/parquet"
+
+windowing:
+  # Sliding window parameters (Chevtchenko et al., arXiv:2310.14949)
+  # window_size: number of consecutive telemetry samples per window
+  # For 10s interval, window_size: 12 corresponds to 2 minutes of history
+  window_size: 12
+  # stride: step size between consecutive windows
+  stride: 1
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:5173"
+    - "http://127.0.0.1:5173"
